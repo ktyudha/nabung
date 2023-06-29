@@ -1,9 +1,10 @@
 // import { NavbarPlugin } from "bootstrap-vue";
 import { createRouter, createWebHistory } from "vue-router";
-// import HomeView from "../components/HomeView.vue";
 import HomeView from "../views/HomeOneView.vue";
-import HistoryOneViewVue from "@/views/HistoryOneView.vue";
-import LoginView from "../views/LoginOneView.vue";
+// import LoginView from "../views/LoginOneView.vue";
+
+import TesLogin from "../views/TesLogin.vue";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const routes = [
   {
@@ -11,23 +12,16 @@ const routes = [
     name: "nabung.index",
     component: HomeView,
     meta: {
+      reload: true,
       requiresAuth: true,
     },
   },
   {
     path: "/login",
     name: "login",
-    component: LoginView,
+    component: TesLogin,
     meta: {
       authPage: true,
-    },
-  },
-  {
-    path: "/history",
-    name: "nabung.history",
-    component: HistoryOneViewVue,
-    meta: {
-      requiresAuth: true,
     },
   },
 ];
@@ -37,19 +31,31 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const removeListener = onAuthStateChanged(
+      getAuth(),
+      (user) => {
+        removeListener();
+        resolve(user);
+      },
+      reject
+    );
+  });
+};
+router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!localStorage.getItem("token")) {
+    if (await getCurrentUser()) {
+      next();
+    } else {
+      alert("You must be logged in");
       next({
         name: "login",
       });
-      return;
     }
+  } else {
     next();
-    return;
   }
-  next();
-  return;
 });
 
 export default router;

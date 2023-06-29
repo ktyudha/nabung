@@ -1,234 +1,266 @@
 <template>
   <AuthenticatedLayoutVue>
-    <div class="container">
-      <div class="row mt-2">
-        <div class="mb-3">
-          <div class="p-3 text-white bg-warning rounded">
-            <div class="card-body">
-              <h5 class="fw-bold text-start fs-1">SALDO</h5>
-              <!-- <p class="card-text text-start">
-                Kalau punya uang segera ditabung!!
-              </p> -->
-              <template v-for="(sld, index) in saldo.data" :key="index">
-                <p class="fs-3 mb-0 fw-bold bg-warning">Rp {{ sld }}</p>
-              </template>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 mb-3">
-          <button
-            type="button"
-            name="setor"
-            class="btn btn-success w-100"
-            data-bs-toggle="modal"
-            data-bs-target="#setorModal"
-            @click="setTransaction(1)"
-          >
-            <div class="py-3 text-white">
-              <div class="card-body">
-                <h5 class="fw-bold text-start fs-1">SETOR</h5>
-                <p class="card-text text-start">
-                  Kalau punya uang segera ditabung!!
-                </p>
-              </div>
-            </div>
-          </button>
-        </div>
-        <div class="col-sm-6">
-          <button
-            type="button"
-            name="tarik"
-            class="btn btn-danger w-100"
-            data-bs-toggle="modal"
-            data-bs-target="#tarikModal"
-            @click="setTransaction(2)"
-          >
-            <div class="py-3 text-white">
-              <div class="card-body text-start">
-                <h5 class="fw-bold fs-1">TARIK</h5>
-                <p class="card-text">Jangan Boros!!</p>
-              </div>
-            </div>
-          </button>
-        </div>
+    <div class="list container">
+      <div class="mb-3 text-center">
+        <span class="fw-bold">Saldo</span><br />
+        <span class="fs-6 fw-semibold">Rp {{ saldo }}</span>
       </div>
-    </div>
-    <div
-      class="modal fade"
-      id="setorModal"
-      tabindex="-1"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Setor</h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form @submit.prevent="store()">
-              <div class="mb-3">
-                <label class="form-label" for="nominal">Nominal</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="nabung.nominal"
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="subject">Subject</label>
-                <select
-                  class="form-select"
-                  name="subject"
-                  id="subject"
-                  v-model="nabung.subject"
-                  required
-                >
-                  <option selected disabled>-- Pilih Subject --</option>
-                  <option value="nabung">Nabung rutin</option>
-                  <option value="job">Job</option>
-                  <option value="uang lebih">Uang lebih</option>
-                </select>
-              </div>
-              <div class="mb-3 text-end">
-                <button class="btn btn-dark">Save</button>
-              </div>
-            </form>
+      <div class="text-center">
+        <button
+          type="button"
+          name="setor"
+          class="btn btn-dark rounded-pill btn-sm mr-2"
+          data-bs-toggle="modal"
+          data-bs-target="#setorModal"
+          @click="setTransaction('setor')"
+        >
+          Setor
+        </button>
+        <button
+          type="button"
+          name="tarik"
+          class="btn btn-dark rounded-pill btn-sm mx-2"
+          data-bs-toggle="modal"
+          data-bs-target="#tarikModal"
+          @click="setTransaction('tarik')"
+        >
+          Tarik
+        </button>
+      </div>
+
+      <div class="mt-1">
+        <div class="mb-3" v-for="(nbg, index) in nabungs" :key="index">
+          <span class="fw-semibold opacity-50" style="font-size: 12px">{{
+            moment(nbg.created_at).format("ll")
+          }}</span>
+          <div class="row mt-1">
+            <div class="col-6">
+              <span class="fw-semibold text-capitalize">{{ nbg.subject }}</span>
+              <p class="mb-0 text-secondary" style="font-size: 10px">
+                Transaksi
+                <span class="text-capitalize">{{ nbg.transaction }}</span>
+                oleh
+                <span class="text-capitalize">{{ nbg.author }}</span>
+              </p>
+            </div>
+            <div class="col-6">
+              <p
+                class="text-end text-success fw-bold"
+                v-if="nbg.transaction == 'setor'"
+              >
+                + Rp {{ nbg.nominal }}
+              </p>
+              <p class="text-end fw-bold text-danger" v-else>
+                - Rp {{ nbg.nominal }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div
-      class="modal fade"
-      id="tarikModal"
-      tabindex="-1"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Tarik</h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form @submit.prevent="store()">
-              <div class="mb-3">
-                <label class="form-label" for="nominal">Nominal</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="nabung.nominal"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="subject">Subject</label>
-                <select
-                  class="form-select"
-                  name="subject"
-                  id="subject"
-                  v-model="nabung.subject"
-                  required
-                >
-                  <option selected disabled>-- Pilih Subject --</option>
-                  <option value="makan">Makan</option>
-                  <option value="jalan-jalan">Jalan-jalan</option>
-                  <option value="staycation">Staycation</option>
-                </select>
-                <!-- <textarea
+
+      <div
+        class="modal fade"
+        id="setorModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Setor</h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="store()">
+                <div class="mb-3">
+                  <label class="form-label" for="nominal">Nominal</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    v-model="nabung.nominal"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="subject">Subject</label>
+                  <input
                     type="text"
                     class="form-control"
-                    v-model="event.keterangan"
-                  /> -->
-              </div>
-              <div class="mb-3 text-end">
-                <button class="btn btn-dark">Save</button>
-              </div>
-            </form>
+                    v-model="nabung.subject"
+                    required
+                  />
+                </div>
+                <button
+                  class="btn btn-dark w-100 mb-2 mt-1"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  Save
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="tarikModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Tarik</h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="store()">
+                <div class="mb-3">
+                  <label class="form-label" for="nominal">Nominal</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    v-model="nabung.nominal"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="subject">Subject</label>
+
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="nabung.subject"
+                    maxlength="15"
+                    required
+                  />
+                </div>
+                <!-- <div class="mb-3 text-end"> -->
+                <button
+                  class="btn btn-dark w-100 mb-2 mt-1"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  Save
+                </button>
+                <!-- </div> -->
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </AuthenticatedLayoutVue>
 </template>
-
-<script>
+    
+    <script>
+// @ is an alias to /src
+import moment from "moment";
 import AuthenticatedLayoutVue from "@/layouts/AuthenticatedLayout.vue";
 import axios from "axios";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { getAuth } from "firebase/auth";
+import "vue3-carousel/dist/carousel.css";
 
 export default {
-  name: "HomeView",
+  name: "HistoryOneViewVue",
   components: {
     AuthenticatedLayoutVue,
   },
   setup() {
+    let today = Date.now();
+    let auth = getAuth();
+    const router = useRouter();
+    let nabungs = ref([]);
+    let saldo = ref(0);
+
     const nabung = reactive({
       nominal: 0,
-      transaction_id: 0,
+      transaction: "",
       subject: "",
-      user_id: 0,
-      saldo: 0,
+      author: auth.currentUser.displayName,
+      created_at: today,
     });
 
-    const router = useRouter();
-    let saldo = ref([]);
-
     function setTransaction(obj) {
-      nabung.transaction_id = obj;
-      // console.log(nabung.transaction_id);
+      nabung.transaction = obj;
     }
-
     function store() {
-      console.log(nabung);
       axios
-        .post("/banks", nabung)
+        .post(
+          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r",
+          nabung
+        )
         .then(() => {
-          // console.log(nabung);
           alert("Transaction Successful");
-          // router.push({
-          //   name: "nabung.history",
-          // });
+          router.reload;
         })
-        .catch(() => {
-          // console.log();
+        .catch((err) => {
+          console.log(err.response);
         });
     }
     onMounted(() => {
       axios
-        .get("/getsaldo")
+        .get(
+          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
+        )
         .then((result) => {
-          saldo.value = result.data;
-          // console.log(saldo.value);
+          let nab = Object.values(result.data);
+          nabungs.value = nab;
+          // nabungs.value = result.data;
+          // console.log(nab);
+          // console.log(result.data);
         })
         .catch((err) => {
           console.log(err.response);
-          // console.log("Login please");
+        });
+    });
+    onMounted(() => {
+      axios
+        .get(
+          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
+        )
+        .then((result) => {
+          var totalSaldo = 0;
+          var pengeluaran = 0;
+          for (var key in result.data) {
+            if (result.data[key].transaction == "setor") {
+              totalSaldo += result.data[key].nominal;
+            }
+            if (result.data[key].transaction == "tarik") {
+              pengeluaran += result.data[key].nominal;
+            }
+          }
+          saldo.value = totalSaldo - pengeluaran;
+        })
+        .catch((err) => {
+          console.log(err.response);
         });
     });
     return {
+      nabungs,
       nabung,
-      router,
       saldo,
+      router,
+      moment,
       store,
       setTransaction,
     };
   },
 };
 </script>
-
-<style>
-</style>
+    

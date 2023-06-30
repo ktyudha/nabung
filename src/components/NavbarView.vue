@@ -1,13 +1,13 @@
 import { getAuth } from 'firebase/auth';
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <nav class="navbar navbar-expand-lg bg-white">
     <div class="container">
       <a class="navbar-brand" href="/"
         ><img v-bind:src="image" class="w-50 rounded-circle" alt="user"
       /></a>
       <div class="dropdown">
         <button
-          class="btn btn-danger rounded-pill btn-sm text-capitalize fw-semibold dropdown-toggle"
+          class="btn tosca text-white rounded-pill btn-sm text-capitalize fw-semibold dropdown-toggle"
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
@@ -45,4 +45,8 @@ export default {
 </script>
 
 <style>
+#app .tosca {
+  /* color: #6acacd; */
+  background-color: #6acacd;
+}
 </style>

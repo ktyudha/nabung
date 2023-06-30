@@ -1,12 +1,10 @@
 <template>
   <div class="container">
-    <div class="col-sm-6 mt-5 p-5 col-md-4">
+    <!-- <div class="col-sm-6 mt-5 p-5 col-md-4">
       <p class="fs-1 fw-bold mb-0">Login</p>
-      <p class="mt-0 fs-6">Welcome back to Nabung</p>
+      <p class="mt-0 fs-6">Welcome back to Nabung</p> -->
 
-      <div class="card mt-4">
-        <div class="m-3">
-          <!-- <div class="mb-3">
+    <!-- <div class="mb-3">
             <label class="form-label" for="Email">Email</label>
             <input type="text" class="form-control" v-model="email" />
           </div>
@@ -19,14 +17,24 @@
               Register
             </button>
           </div> -->
-
-          <img
-            src="btngoogle.png"
-            class="img-fluid w-100 rounded border-0"
-            @click="signInWithGoogle"
-            alt=""
-          />
+    <!-- </div> -->
+    <div class="position-relative vh-100">
+      <div class="position-absolute top-50 start-50 translate-middle">
+        <div class="text-center align-bottom">
+          <img src="logonabung.png" style="width: 50px" class="mb-4" />
         </div>
+
+        <button
+          @click="signInWithGoogle"
+          class="tosca btn text-white rounded-pill"
+        >
+          <!-- <img
+            src="google.png"
+            class="rounded border-0 me-2"
+            style="width: 25px"
+          /> -->
+          <span class="text-sm-start"> Sign In With Google</span>
+        </button>
       </div>
     </div>
   </div>
@@ -72,4 +80,8 @@ const signInWithGoogle = () => {
 </script>
   
   <style>
+#app .tosca {
+  /* color: #6acacd; */
+  background-color: #6acacd;
+}
 </style>

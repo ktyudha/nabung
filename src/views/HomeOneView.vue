@@ -1,32 +1,7 @@
 <template>
   <AuthenticatedLayoutVue>
-    <div class="list container">
-      <div class="mb-3 text-center">
-        <span class="fw-bold">Saldo</span><br />
-        <span class="fs-6 fw-semibold">Rp {{ saldo }}</span>
-      </div>
-      <div class="text-center">
-        <button
-          type="button"
-          name="setor"
-          class="btn btn-dark rounded-pill btn-sm mr-2"
-          data-bs-toggle="modal"
-          data-bs-target="#setorModal"
-          @click="setTransaction('setor')"
-        >
-          Setor
-        </button>
-        <button
-          type="button"
-          name="tarik"
-          class="btn btn-dark rounded-pill btn-sm mx-2"
-          data-bs-toggle="modal"
-          data-bs-target="#tarikModal"
-          @click="setTransaction('tarik')"
-        >
-          Tarik
-        </button>
-      </div>
+    <div class="container">
+      <div class="text-center"></div>
 
       <div class="mt-1">
         <div class="mb-3" v-for="(nbg, index) in nabungs" :key="index">
@@ -44,14 +19,11 @@
               </p>
             </div>
             <div class="col-6">
-              <p
-                class="text-end text-success fw-bold"
-                v-if="nbg.transaction == 'setor'"
-              >
-                + Rp {{ nbg.nominal }}
+              <p class="text-end fw-bold" v-if="nbg.transaction == 'setor'">
+                {{ rupiah(nbg.nominal) }}
               </p>
               <p class="text-end fw-bold text-danger" v-else>
-                - Rp {{ nbg.nominal }}
+                - {{ rupiah(nbg.nominal) }}
               </p>
             </div>
           </div>
@@ -96,7 +68,7 @@
                   />
                 </div>
                 <button
-                  class="btn btn-dark w-100 mb-2 mt-1"
+                  class="btn tosca text-white w-100 mb-2 mt-1"
                   data-bs-dismiss="modal"
                   aria-label="Close"
                 >
@@ -150,7 +122,7 @@
                 </div>
                 <!-- <div class="mb-3 text-end"> -->
                 <button
-                  class="btn btn-dark w-100 mb-2 mt-1"
+                  class="btn tosca text-white w-100 mb-2 mt-1"
                   data-bs-dismiss="modal"
                   aria-label="Close"
                 >
@@ -162,6 +134,89 @@
           </div>
         </div>
       </div>
+
+      <!-- Detail modal -->
+      <div
+        class="modal fade"
+        id="detailModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Detail</h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label" for="nominal">Pengeluaran</label>
+                <p class="fs-6 fw-bold text-danger w-100">
+                  - {{ rupiah(uangkeluar) }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="subject">Pemasukan</label>
+                <p class="fs-6 fw-bold text-success w-100">
+                  + {{ rupiah(uangmasuk) }}
+                </p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="subject">Saldo</label>
+                <p class="fs-6 fw-bold w-100">{{ rupiah(saldo) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="navbar fixed-bottom bg-white">
+        <div class="container">
+          <span class="te-tosca d-flex" style="font-size: 14px"
+            >Pengeluaran</span
+          >
+        </div>
+        <div class="container">
+          <button
+            type="button"
+            name="detail"
+            class="btn tosca text-white rounded-pill btn-sm me-2"
+            data-bs-toggle="modal"
+            data-bs-target="#detailModal"
+            @click="setTransaction('detail')"
+          >
+            <span class="fs-6 fw-bold w-100">{{ rupiah(uangkeluar) }}</span>
+          </button>
+
+          <div>
+            <button
+              type="button"
+              name="setor"
+              class="btn outline-tosca te-tosca rounded-pill btn-sm me-2"
+              data-bs-toggle="modal"
+              data-bs-target="#setorModal"
+              @click="setTransaction('setor')"
+            >
+              Setor
+            </button>
+            <button
+              type="button"
+              name="tarik"
+              class="btn tosca text-white rounded-pill btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#tarikModal"
+              @click="setTransaction('tarik')"
+            >
+              Tarik
+            </button>
+          </div>
+        </div>
+      </nav>
     </div>
   </AuthenticatedLayoutVue>
 </template>
@@ -186,6 +241,8 @@ export default {
     let auth = getAuth();
     const router = useRouter();
     let nabungs = ref([]);
+    let uangkeluar = ref(0);
+    let uangmasuk = ref(0);
     let saldo = ref(0);
 
     const nabung = reactive({
@@ -195,6 +252,13 @@ export default {
       author: auth.currentUser.displayName,
       created_at: today,
     });
+
+    const rupiah = (number) => {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      }).format(number);
+    };
 
     function setTransaction(obj) {
       nabung.transaction = obj;
@@ -219,7 +283,7 @@ export default {
           "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
         )
         .then((result) => {
-          let nab = Object.values(result.data);
+          let nab = Object.values(result.data).reverse();
           nabungs.value = nab;
           // nabungs.value = result.data;
           // console.log(nab);
@@ -235,26 +299,31 @@ export default {
           "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
         )
         .then((result) => {
-          var totalSaldo = 0;
+          var pemasukan = 0;
           var pengeluaran = 0;
           for (var key in result.data) {
             if (result.data[key].transaction == "setor") {
-              totalSaldo += result.data[key].nominal;
+              pemasukan += result.data[key].nominal;
             }
             if (result.data[key].transaction == "tarik") {
               pengeluaran += result.data[key].nominal;
             }
           }
-          saldo.value = totalSaldo - pengeluaran;
+          uangkeluar.value = pengeluaran;
+          uangmasuk.value = pemasukan;
+          saldo.value = pemasukan - pengeluaran;
         })
         .catch((err) => {
           console.log(err.response);
         });
     });
     return {
+      rupiah,
       nabungs,
-      nabung,
       saldo,
+      nabung,
+      uangkeluar,
+      uangmasuk,
       router,
       moment,
       store,
@@ -263,4 +332,17 @@ export default {
   },
 };
 </script>
+<style>
+#app .tosca {
+  /* color: #6acacd; */
+  background-color: #6acacd;
+}
+
+#app .outline-tosca {
+  border-color: #6acacd;
+}
+#app .te-tosca {
+  color: #6acacd;
+}
+</style>
     

@@ -4,15 +4,15 @@ import HomeView from "../views/HomeOneView.vue";
 // import LoginView from "../views/LoginOneView.vue";
 
 import TesLogin from "../views/TesLogin.vue";
+import Pocket from "../views/PocketOneView.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const routes = [
   {
-    path: "/",
-    name: "nabung.index",
+    path: "/pockets/:id",
+    name: "nabung.pockets",
     component: HomeView,
     meta: {
-      reload: true,
       requiresAuth: true,
     },
   },
@@ -22,6 +22,15 @@ const routes = [
     component: TesLogin,
     meta: {
       authPage: true,
+    },
+  },
+  {
+    path: "/",
+    name: "nabung.index",
+    component: Pocket,
+    meta: {
+      reload: true,
+      requiresAuth: true,
     },
   },
 ];
@@ -43,6 +52,7 @@ const getCurrentUser = () => {
     );
   });
 };
+
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (await getCurrentUser()) {

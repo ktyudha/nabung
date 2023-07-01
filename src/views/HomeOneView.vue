@@ -39,11 +39,13 @@
       >
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">Setor</h1>
+            <div class="modal-header tosca">
+              <h1 class="modal-title fs-5 text-white" id="exampleModalLabel">
+                Setor
+              </h1>
               <button
                 type="button"
-                class="btn-close"
+                class="btn-close bg-white"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
@@ -51,7 +53,11 @@
             <div class="modal-body">
               <form @submit.prevent="store()">
                 <div class="mb-3">
-                  <label class="form-label" for="nominal">Nominal</label>
+                  <label class="form-label" for="nominal"
+                    >Nominal<span class="text-secondary" style="font-size: 8px"
+                      >(exp 150000)</span
+                    ></label
+                  >
                   <input
                     type="number"
                     class="form-control"
@@ -59,7 +65,12 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label" for="subject">Subject</label>
+                  <label class="form-label" for="subject"
+                    >Subject
+                    <span class="text-secondary" style="font-size: 8px"
+                      >(Mutasi)</span
+                    ></label
+                  >
                   <input
                     type="text"
                     class="form-control"
@@ -89,11 +100,13 @@
       >
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">Tarik</h1>
+            <div class="modal-header tosca">
+              <h1 class="modal-title fs-5 text-white" id="exampleModalLabel">
+                Tarik
+              </h1>
               <button
                 type="button"
-                class="btn-close"
+                class="btn-close bg-white"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
@@ -101,7 +114,12 @@
             <div class="modal-body">
               <form @submit.prevent="store()">
                 <div class="mb-3">
-                  <label class="form-label" for="nominal">Nominal</label>
+                  <label class="form-label" for="nominal"
+                    >Nominal
+                    <span class="text-secondary" style="font-size: 8px"
+                      >(exp 150000)</span
+                    ></label
+                  >
                   <input
                     type="number"
                     class="form-control"
@@ -110,7 +128,12 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label" for="subject">Subject</label>
+                  <label class="form-label" for="subject"
+                    >Subject
+                    <span class="text-secondary" style="font-size: 8px"
+                      >(Makan)</span
+                    >
+                  </label>
 
                   <input
                     type="text"
@@ -145,11 +168,13 @@
       >
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">Detail</h1>
+            <div class="modal-header tosca">
+              <h1 class="modal-title fs-5 text-white" id="exampleModalLabel">
+                Detail
+              </h1>
               <button
                 type="button"
-                class="btn-close"
+                class="btn-close bg-white"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
@@ -244,14 +269,24 @@ export default {
     let uangkeluar = ref(0);
     let uangmasuk = ref(0);
     let saldo = ref(0);
+    // let owner = auth.currentUser.uid;
+    const idpocket = router.currentRoute.value.params.id;
+    // let url =
+    ("https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket${idpocket}.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r");
 
     const nabung = reactive({
+      author: auth.currentUser.displayName,
       nominal: 0,
       transaction: "",
       subject: "",
-      author: auth.currentUser.displayName,
       created_at: today,
     });
+
+    // function checkpocket() {
+    //   if (auth.currentUser.displayName != "Kurniawan Try Yudha") {
+    //     store(auth.currentUser.uid);
+    //   }
+    // }
 
     const rupiah = (number) => {
       return new Intl.NumberFormat("id-ID", {
@@ -263,10 +298,12 @@ export default {
     function setTransaction(obj) {
       nabung.transaction = obj;
     }
+
     function store() {
+      console.log(nabung);
       axios
         .post(
-          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r",
+          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${idpocket}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`,
           nabung
         )
         .then(() => {
@@ -278,13 +315,18 @@ export default {
         });
     }
     onMounted(() => {
+      console.log(idpocket);
+    });
+    onMounted(() => {
       axios
         .get(
-          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
+          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${idpocket}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`
         )
         .then((result) => {
+          console.log(result);
           let nab = Object.values(result.data).reverse();
           nabungs.value = nab;
+          // console.log("ini nab" + nabungs.value.length);
           // nabungs.value = result.data;
           // console.log(nab);
           // console.log(result.data);
@@ -296,7 +338,7 @@ export default {
     onMounted(() => {
       axios
         .get(
-          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
+          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${idpocket}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`
         )
         .then((result) => {
           var pemasukan = 0;
@@ -319,6 +361,7 @@ export default {
     });
     return {
       rupiah,
+      // checkpocket,
       nabungs,
       saldo,
       nabung,

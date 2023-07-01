@@ -282,12 +282,6 @@ export default {
       created_at: today,
     });
 
-    // function checkpocket() {
-    //   if (auth.currentUser.displayName != "Kurniawan Try Yudha") {
-    //     store(auth.currentUser.uid);
-    //   }
-    // }
-
     const rupiah = (number) => {
       return new Intl.NumberFormat("id-ID", {
         style: "currency",
@@ -326,10 +320,6 @@ export default {
           console.log(result);
           let nab = Object.values(result.data).reverse();
           nabungs.value = nab;
-          // console.log("ini nab" + nabungs.value.length);
-          // nabungs.value = result.data;
-          // console.log(nab);
-          // console.log(result.data);
         })
         .catch((err) => {
           console.log(err.response);

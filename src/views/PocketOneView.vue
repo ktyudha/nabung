@@ -1,75 +1,74 @@
 <template>
   <AuthenticatedLayoutVue>
     <div class="container">
-      <div class="mb-3" v-for="(nbg, index) in nabungs" :key="index">
-        <!-- <p>{{ index }}</p> -->
-        <template v-for="owner in nbg.author" :key="owner">
-          <div v-if="owner == tesowner">
-            <div class="col-md-6 mx-auto">
-              <div class="card tosca border-0">
-                <div class="card-body">
-                  <div class="d-flex">
-                    <div class="col-8">
-                      <router-link
-                        :to="'/pockets/' + index"
-                        class="text-decoration-none"
-                      >
-                        <span class="fw-bolder text-white fs-2 text-capitalize">
-                          {{ nbg.name }}</span
-                        ><br />
-                        <span class="fw-normal text-white fs-6">Rp 0,-</span>
-                      </router-link>
-                    </div>
-                    <div class="col-4 my-auto text-end">
-                      <button
-                        type="button"
-                        name="pocket"
-                        class="btn btn-outline-light text-white rounded-pill btn-sm me-2"
-                        data-bs-toggle="modal"
-                        :data-bs-target="'#detPocketModal' + index"
-                      >
-                        ID
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <!-- <p>tes {{ index }}</p> -->
-              </div>
-            </div>
-          </div>
-          <div
-            class="modal fade"
-            :id="'detPocketModal' + index"
-            tabindex="-1"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header tosca">
-                  <h1
-                    class="modal-title fs-5 text-capitalize text-white"
-                    id="exampleModalLabel"
+      <div class="mb-3" v-for="(pocket, index) in hasil" :key="index">
+        <div class="col-md-6 mx-auto">
+          <div class="card tosca border-0">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="col-8">
+                  <router-link
+                    :to="'/pockets/' + index"
+                    class="text-decoration-none"
                   >
-                    Detail {{ nbg.name }}
-                  </h1>
+                    <span class="fw-bolder text-white fs-2 text-capitalize">
+                      {{ pocket.name }}</span
+                    ><br />
+
+                    <span class="fw-normal text-white fs-6"
+                      >{{ rupiah(pocket.total) }}
+                    </span>
+                  </router-link>
+                </div>
+                <div class="col-4 my-auto text-end">
                   <button
                     type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
+                    name="pocket"
+                    class="btn btn-outline-light text-white rounded-pill btn-sm me-2"
+                    data-bs-toggle="modal"
+                    :data-bs-target="'#detPocketModal' + index"
+                  >
+                    ID
+                  </button>
                 </div>
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label" for="id">ID</label>
-                    <span class="ms-4">{{ nbg.slug }}</span>
-                  </div>
+              </div>
+            </div>
+            <!-- <p>tes {{ index }}</p> -->
+          </div>
+        </div>
+
+        <div
+          class="modal fade"
+          :id="'detPocketModal' + index"
+          tabindex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header tosca">
+                <h1
+                  class="modal-title fs-5 text-capitalize text-white"
+                  id="exampleModalLabel"
+                >
+                  Detail {{ pocket.name }}
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label" for="id">ID</label>
+                  <span class="ms-4">{{ pocket.slug }}</span>
                 </div>
               </div>
             </div>
           </div>
-        </template>
+        </div>
       </div>
 
       <div class="col-md-6 mx-auto">
@@ -207,34 +206,25 @@ export default {
     AuthenticatedLayoutVue,
   },
   setup() {
-    onMounted(() => {
-      axios
-        .get(
-          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r",
-          {}
-        )
-        .then((result) => {
-          console.log(tesowner);
-          //   let nab = Object.values(result.data).reverse();
-          nabungs.value = result.data;
-        })
-        .catch((err) => {
-          console.log(err.response);
-        });
-    });
-
     let auth = getAuth();
     const router = useRouter();
 
     let nabungs = ref([]);
-    // console.log(nabungs);
+    let pocketss = ref([]);
     let uangkeluar = ref(0);
     let uangmasuk = ref(0);
-    let saldo = ref(0);
+    let hasil = ref([]);
+
     let tesowner = auth.currentUser.uid;
     let url =
       "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r";
 
+    const rupiah = (number) => {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      }).format(number);
+    };
     function checkIdPocket() {
       if (joinPocket.slug != "") {
         updatePocket();
@@ -272,7 +262,6 @@ export default {
     }
 
     function updatePocket() {
-      console.log(joinPocket);
       axios
         .get(
           "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json",
@@ -323,17 +312,84 @@ export default {
         });
     }
 
+    onMounted(() => {
+      axios
+        .get(
+          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
+        )
+        .then((result) => {
+          //   console.log(tesowner);
+          //   pocketIds = Object.keys(result.data).reverse();
+          nabungs.value = result.data;
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+    });
+
+    onMounted(() => {
+      axios
+        .get(
+          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json",
+          {
+            params: {
+              //   orderBy: '"author"',
+              //   equalTo: `"${"UED2FNRk1F"}"`,
+              auth: "FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r",
+            },
+          }
+        )
+        .then((result) => {
+          //   console.log(result.data);
+          let pockets = Object.values(result.data).reverse();
+
+          pockets.forEach((pocket) => {
+            let authors = Object.values(pocket.author);
+            authors.forEach((author) => {
+              if (author == tesowner) {
+                let savings = Object.values(pocket.savings);
+                let total = 0;
+                let outmoney = 0;
+                let inmoney = 0;
+                pocketss.value = pocket.savings;
+                savings.forEach((saving) => {
+                  if (saving.transaction == "tarik") {
+                    outmoney += saving.nominal;
+                  }
+                  if (saving.transaction == "setor") {
+                    inmoney += saving.nominal;
+                  }
+                });
+                total = inmoney - outmoney;
+                hasil.value.push({
+                  id: pocket.key,
+                  name: pocket.name,
+                  total: total,
+                  slug: pocket.slug,
+                });
+              }
+            });
+          });
+          //   nabungs.value = result.data;
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+    });
+
     return {
+      hasil,
       tesowner,
+      rupiah,
       namePocket,
       joinPocket,
+      pocketss,
       createPocket,
       createSlug,
       updatePocket,
       generateRandomText,
       nabungs,
       checkIdPocket,
-      saldo,
       uangkeluar,
       uangmasuk,
       router,

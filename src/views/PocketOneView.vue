@@ -371,19 +371,23 @@ export default {
             let authors = Object.values(pocket.author);
             authors.forEach((author) => {
               if (author == tesowner) {
-                let savings = Object.values(pocket.savings);
+                let savings;
                 let total = 0;
                 let outmoney = 0;
                 let inmoney = 0;
+
+                if (pocket.savings) {
+                  savings = Object.values(pocket.savings);
+                  savings.forEach((saving) => {
+                    if (saving.transaction == "tarik") {
+                      outmoney += saving.nominal;
+                    }
+                    if (saving.transaction == "setor") {
+                      inmoney += saving.nominal;
+                    }
+                  });
+                }
                 pocketss.value = pocket.savings;
-                savings.forEach((saving) => {
-                  if (saving.transaction == "tarik") {
-                    outmoney += saving.nominal;
-                  }
-                  if (saving.transaction == "setor") {
-                    inmoney += saving.nominal;
-                  }
-                });
                 total = inmoney - outmoney;
                 hasil.value.push({
                   id: pocket.key,

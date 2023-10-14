@@ -1,8 +1,45 @@
 <template>
   <AuthenticatedLayoutVue>
     <div class="container">
-      <div class="text-center"></div>
-
+      <!-- <h5 class="te-tosca fs-6 mb-3">{{ namePage }}</h5> -->
+      <!-- <div class="mb-4"> -->
+      <!-- <div class="input-group w-full rounded">
+          <input
+            type="search"
+            class="form-control focus-ring-0 text-decoration-none border rounded"
+            placeholder="Search"
+            aria-label="Search"
+            aria-describedby="search-addon"
+          />
+          <span class="input-group-text border-0 tosca" id="search-addon">
+            <font-awesome-icon
+              :icon="['fas', 'magnifying-glass']"
+              class="text-white"
+            />
+          </span>
+        </div> -->
+      <!-- </div> -->
+      <!-- <div class="text-center mx-auto">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <router-link
+                to="/"
+                class="text-decoration-none text-dark"
+                style="font-size: 14px"
+                >Home</router-link
+              >
+            </li>
+            <li
+              class="breadcrumb-item te-tosca"
+              aria-current="page"
+              style="font-size: 14px"
+            >
+              {{ namePage }}
+            </li>
+          </ol>
+        </nav>
+      </div> -->
       <div class="mt-1">
         <div class="mb-3" v-for="(nbg, index) in nabungs" :key="index">
           <span class="fw-semibold opacity-50" style="font-size: 12px">{{
@@ -13,7 +50,7 @@
               <span class="fw-semibold text-capitalize">{{ nbg.subject }}</span>
               <p class="mb-0 text-secondary" style="font-size: 10px">
                 Transaksi
-                <span class="text-capitalize">{{ nbg.transaction }}</span>
+                <span class="text-capitalize">{{ nbg.savings }}</span>
                 oleh
                 <span class="text-capitalize">{{ nbg.author }}</span>
               </p>
@@ -203,7 +240,7 @@
       <nav class="navbar fixed-bottom bg-white">
         <div class="container">
           <span class="te-tosca d-flex" style="font-size: 14px"
-            >Pengeluaran</span
+            >Saldo {{ namePage }}</span
           >
         </div>
         <div class="container">
@@ -215,7 +252,7 @@
             data-bs-target="#detailModal"
             @click="setTransaction('detail')"
           >
-            <span class="fs-6 fw-bold w-100">{{ rupiah(uangkeluar) }}</span>
+            <span class="fs-6 fw-bold w-100">{{ rupiah(saldo) }} </span>
           </button>
 
           <div>
@@ -246,8 +283,7 @@
   </AuthenticatedLayoutVue>
 </template>
     
-    <script>
-// @ is an alias to /src
+<script>
 import moment from "moment";
 import AuthenticatedLayoutVue from "@/layouts/AuthenticatedLayout.vue";
 import axios from "axios";
@@ -269,10 +305,9 @@ export default {
     let uangkeluar = ref(0);
     let uangmasuk = ref(0);
     let saldo = ref(0);
-    // let owner = auth.currentUser.uid;
+    let namePage = ref("");
+
     const idpocket = router.currentRoute.value.params.id;
-    // let url =
-    ("https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket${idpocket}.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r");
 
     const nabung = reactive({
       author: auth.currentUser.displayName,
@@ -294,64 +329,69 @@ export default {
     }
 
     function store() {
-      console.log(nabung);
       axios
-        .post(
-          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${idpocket}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`,
-          nabung
+        .get(
+          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?orderBy="slug"&equalTo="${idpocket}"&auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`
         )
-        .then(() => {
-          alert("Transaction Successful");
-          router.reload;
-        })
-        .catch((err) => {
-          console.log(err.response);
+        .then((result) => {
+          const data = result.data;
+          if (data) {
+            const id = Object.keys(data)[0];
+            axios
+              .post(
+                `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${id}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`,
+                nabung
+              )
+              .then(() => {
+                alert("Transaction Successful");
+                window.location.reload();
+              })
+              .catch((err) => {
+                console.log(err.response);
+              });
+          }
         });
     }
     onMounted(() => {
-      console.log(idpocket);
-    });
-    onMounted(() => {
       axios
         .get(
-          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${idpocket}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`
+          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?orderBy="slug"&equalTo="${idpocket}"&auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`
         )
         .then((result) => {
-          console.log(result);
-          let nab = Object.values(result.data).reverse();
-          nabungs.value = nab;
-        })
-        .catch((err) => {
-          console.log(err.response);
-        });
-    });
-    onMounted(() => {
-      axios
-        .get(
-          `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${idpocket}/savings.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`
-        )
-        .then((result) => {
+          let savingsData = Object.values(result.data);
+          namePage.value = savingsData[0].name;
+
+          let nabungsData = [];
+          savingsData.forEach((savings) => {
+            nabungsData = nabungsData.concat(Object.values(savings.savings));
+          });
+          nabungsData.reverse();
+          nabungs.value = nabungsData;
+
           var pemasukan = 0;
           var pengeluaran = 0;
-          for (var key in result.data) {
-            if (result.data[key].transaction == "setor") {
-              pemasukan += result.data[key].nominal;
+          let nabungsData2 = Object.values(nabungs.value);
+
+          nabungsData2.forEach((transactions) => {
+            if (transactions.transaction == "setor") {
+              pemasukan += transactions.nominal;
             }
-            if (result.data[key].transaction == "tarik") {
-              pengeluaran += result.data[key].nominal;
+            if (transactions.transaction == "tarik") {
+              pengeluaran += transactions.nominal;
             }
-          }
+          });
           uangkeluar.value = pengeluaran;
           uangmasuk.value = pemasukan;
           saldo.value = pemasukan - pengeluaran;
         })
         .catch((err) => {
-          console.log(err.response);
+          console.log(err);
         });
     });
+
     return {
+      namePage,
       rupiah,
-      // checkpocket,
       nabungs,
       saldo,
       nabung,

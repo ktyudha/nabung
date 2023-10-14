@@ -1,77 +1,7 @@
 <template>
   <AuthenticatedLayoutVue>
     <div class="container">
-      <div class="mb-3" v-for="(pocket, index) in hasil" :key="index">
-        <div class="col-md-6 mx-auto">
-          <div class="card tosca border-0">
-            <div class="card-body">
-              <div class="d-flex">
-                <div class="col-8">
-                  <router-link
-                    :to="'/pockets/' + index"
-                    class="text-decoration-none"
-                  >
-                    <span class="fw-bolder text-white fs-2 text-capitalize">
-                      {{ pocket.name }}</span
-                    ><br />
-
-                    <span class="fw-normal text-white fs-6"
-                      >{{ rupiah(pocket.total) }}
-                    </span>
-                  </router-link>
-                </div>
-                <div class="col-4 my-auto text-end">
-                  <button
-                    type="button"
-                    name="pocket"
-                    class="btn btn-outline-light text-white rounded-pill btn-sm me-2"
-                    data-bs-toggle="modal"
-                    :data-bs-target="'#detPocketModal' + index"
-                  >
-                    ID
-                  </button>
-                </div>
-              </div>
-            </div>
-            <!-- <p>tes {{ index }}</p> -->
-          </div>
-        </div>
-
-        <div
-          class="modal fade"
-          :id="'detPocketModal' + index"
-          tabindex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header tosca">
-                <h1
-                  class="modal-title fs-5 text-capitalize text-white"
-                  id="exampleModalLabel"
-                >
-                  Detail {{ pocket.name }}
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                  <label class="form-label" for="id">ID</label>
-                  <span class="ms-4">{{ pocket.slug }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 mx-auto">
+      <div class="col-md-6 mx-auto mb-3">
         <div class="card outline-tosca">
           <div class="card-body">
             <p class="fw-bolder te-tosca fs-4 text-capitalize">Tambah Pocket</p>
@@ -96,6 +26,74 @@
             <!-- <span class="fw-normal te-tosca fs-1">+</span> -->
           </div>
           <!-- <p>tes {{ index }}</p> -->
+        </div>
+      </div>
+      <div class="mb-3" v-for="(pocket, index) in hasil" :key="pocket">
+        <div class="col-md-6 mx-auto">
+          <div class="card tosca border-0">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="col-8">
+                  <router-link
+                    :to="'/pockets/' + pocket.slug"
+                    class="text-decoration-none"
+                  >
+                    <span class="fw-bolder text-white fs-2 text-capitalize">
+                      {{ pocket.name }}</span
+                    ><br />
+
+                    <span class="fw-normal text-white fs-6"
+                      >{{ rupiah(pocket.total) }}
+                    </span>
+                  </router-link>
+                </div>
+                <div class="col-4 my-auto text-end">
+                  <button
+                    type="button"
+                    name="pocket"
+                    class="btn btn-outline-light text-white rounded-pill btn-sm me-2"
+                    data-bs-toggle="modal"
+                    :data-bs-target="'#detPocketModal' + index"
+                  >
+                    ID
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="modal fade"
+          :id="'detPocketModal' + index"
+          tabindex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header tosca">
+                <h1
+                  class="modal-title fs-5 text-capitalize text-white"
+                  id="exampleModalLabel"
+                >
+                  Pocket {{ pocket.name }}
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label" for="id">ID</label>
+                  <span class="ms-4">{{ pocket.slug }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -192,30 +190,30 @@
 </template>
       
 <script>
-// @ is an alias to /src
-import moment from "moment";
 import AuthenticatedLayoutVue from "@/layouts/AuthenticatedLayout.vue";
 import axios from "axios";
+import moment from "moment";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { getAuth } from "firebase/auth";
 
 export default {
-  name: "PocketsOneView",
+  name: "AuthenticatedLayout",
   components: {
     AuthenticatedLayoutVue,
   },
   setup() {
     let auth = getAuth();
     const router = useRouter();
-
-    let nabungs = ref([]);
+    // console.log(auth);
+    // let nabungs = ref([]);
     let pocketss = ref([]);
     let uangkeluar = ref(0);
     let uangmasuk = ref(0);
     let hasil = ref([]);
 
     let tesowner = auth.currentUser.uid;
+    // console.log(tesowner);
     let url =
       "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r";
 
@@ -226,8 +224,39 @@ export default {
       }).format(number);
     };
     function checkIdPocket() {
+      // console.log(joinPocket.slug);
       if (joinPocket.slug != "") {
-        updatePocket();
+        axios
+          .get(
+            "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json",
+            {
+              params: {
+                orderBy: '"slug"',
+                equalTo: `"${joinPocket.slug}"`,
+                auth: "FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r",
+              },
+            }
+          )
+          .then((result) => {
+            let data = Object.values(result.data);
+            let thisSlug = "";
+            data.forEach((inislug) => {
+              // console.log(inislug.slug);
+              thisSlug = inislug.slug;
+            });
+
+            if (thisSlug == joinPocket.slug) {
+              updatePocket();
+              console.log(joinPocket.slug);
+            } else {
+              alert("Please enter ID correctly!!");
+            }
+            // window.location.reload();
+          })
+          .catch((error) => {
+            console.log(error);
+            // window.location.reload();
+          });
       }
     }
 
@@ -260,6 +289,14 @@ export default {
       }
       return result;
     }
+    function isUserInArray(array, userToFind) {
+      for (let i = 0; i < array.length; i++) {
+        if (array[i] === userToFind) {
+          return true; // Pengguna ditemukan dalam array
+        }
+      }
+      return false; // Pengguna tidak ditemukan dalam array
+    }
 
     function updatePocket() {
       axios
@@ -274,38 +311,48 @@ export default {
           }
         )
         .then((result) => {
-          const dataToUpdate = result.data;
-          const id = Object.keys(dataToUpdate)[0];
-          //   console.log(id);
-          const newAuthor = {
-            1: joinPocket.author,
-          };
-          axios
-            .patch(
-              `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${id}/author.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`,
-              newAuthor
-            )
-            .then((patchResponse) => {
-              console.log(patchResponse.data);
-            })
-            .catch((patchError) => {
-              console.error(patchError);
-            });
-          //   let nab = Object.values(result.data).reverse();
-          //   nabungs.value = result.data;
+          let dataToUpdate = Object.values(result.data);
+          let dataReal = result.data;
+          let dataUpdateUser = [];
+
+          const id = Object.keys(dataReal)[0];
+
+          const newAuthor = joinPocket.author;
+
+          dataToUpdate.forEach((transactions) => {
+            dataUpdateUser = transactions.author;
+          });
+
+          if (isUserInArray(dataUpdateUser, newAuthor)) {
+            alert("User already registered on this pocket");
+          } else {
+            dataUpdateUser.push(newAuthor);
+          }
+
+          axios.patch(
+            `https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket/${id}.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r`,
+            { author: dataUpdateUser }
+          );
+          // .then((patchResponse) => {
+          //   console.log(patchResponse.data);
+          //   // window.location.reload();
+          // })
+          // .catch((patchError) => {
+          //   console.error(patchError);
+          // });
         })
         .catch((err) => {
-          console.log(err.response);
+          alert(`Join Pocket ${namePocket.name} Denied`);
+          console.log(err);
         });
     }
 
     function createPocket() {
-      //   console.log(paramkirim);
       axios
         .post(url, namePocket)
         .then(() => {
-          alert("Transaction Successful");
-          router.reload;
+          alert(`Create Pocket ${namePocket.name} Successful`);
+          window.location.reload();
         })
         .catch((err) => {
           console.log(err.response);
@@ -318,31 +365,8 @@ export default {
           "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json?auth=FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r"
         )
         .then((result) => {
-          //   console.log(tesowner);
-          //   pocketIds = Object.keys(result.data).reverse();
-          nabungs.value = result.data;
-        })
-        .catch((err) => {
-          console.log(err.response);
-        });
-    });
-
-    onMounted(() => {
-      axios
-        .get(
-          "https://celenga-berkah-default-rtdb.firebaseio.com/gatherpocket.json",
-          {
-            params: {
-              //   orderBy: '"author"',
-              //   equalTo: `"${"UED2FNRk1F"}"`,
-              auth: "FV1QI4yiFP6KD1OIv9T6cX2y5LLoh3SwyHzy2F0r",
-            },
-          }
-        )
-        .then((result) => {
-          //   console.log(result.data);
-          let pockets = Object.values(result.data).reverse();
-
+          // console.log(result.data);
+          let pockets = Object.values(result.data);
           pockets.forEach((pocket) => {
             let authors = Object.values(pocket.author);
             authors.forEach((author) => {
@@ -370,10 +394,9 @@ export default {
               }
             });
           });
-          //   nabungs.value = result.data;
         })
         .catch((err) => {
-          console.log(err.response);
+          console.log(err);
         });
     });
 
@@ -388,7 +411,6 @@ export default {
       createSlug,
       updatePocket,
       generateRandomText,
-      nabungs,
       checkIdPocket,
       uangkeluar,
       uangmasuk,

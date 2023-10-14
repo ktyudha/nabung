@@ -6,6 +6,9 @@ import router from "./router";
 // import axios from "axios";
 import "bootstrap/dist/css/bootstrap.css";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js";
+
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 // axios.defaults.baseURL =
@@ -34,10 +37,11 @@ const firebaseConfig = {
 // Initialize Firebase
 initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
+library.add(fas);
 
 const app = createApp(App);
 app.use(router);
-app.use(FontAwesomeIcon);
+app.component("font-awesome-icon", FontAwesomeIcon);
 app.use(bootstrap);
 app.mount("#app");
 
